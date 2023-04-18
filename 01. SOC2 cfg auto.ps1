@@ -23,8 +23,8 @@ gpupdate /force
 # notify the user
 Write-Host "Changed screen lock timeout to $timeout seconds."
 Write-Host "The new setting will take effect after a restart."
-Write-Host "Please save any open files and close all programs...`n" # add newline
-sleep(2) # pause for 2 sec
+Write-Host "Please save any open files and close all programs...`n"     # add newline
+sleep(2)    # pause for 2 sec
 Read-Host "Press any key to continue and restart the computer (Ctrl+C to abort)"
 
 Restart-Computer -Force
