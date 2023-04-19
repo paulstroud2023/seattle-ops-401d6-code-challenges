@@ -21,10 +21,10 @@
 
 
 
-import sys 
-import datetime
-import time # 
-import re   # for regex
+import sys          # for parsing script args
+import datetime     # to access and format date/time
+import time         # for timeout/sleep
+import re           # for regex
 import subprocess   # for running bash commands
 
 
@@ -116,4 +116,4 @@ if len(sys.argv) == 2:  # need exactly one script arg (the IP address)
 print("\n^^^ Uptime monitor v1 - crafted by Paul Stroud ^^^")
 
 
-# End
+# le goodbye
