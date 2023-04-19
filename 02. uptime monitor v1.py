@@ -59,10 +59,10 @@ if len(sys.argv) == 2:  # need exactly one script arg (the IP address)
     ping_count = 0  # all pings
     ping_ok = 0     # good pings
 
-    try: 
-        FILE = open(f"uptime_log_{ip_addr}.txt", "w")    # open testfile.txt for write access, create it if needed
+    try:  # you can't fail if you don't try
+        FILE = open(f"uptime_log_{ip_addr}.txt", "w")    # create/open the log file
 
-        while True: # to infinity and beyond!
+        while True:     # to infinity and beyond!
             # run a ping cmd and save results to a var
             ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
            
