@@ -39,6 +39,8 @@ ip_regex = "^(\d{1,3}\.){3}\d{1,3}$"
 # the groups are separated by a '.'
 # the string ends with another group of 1-3 digits between [0-9]
 
+ip_status = { 0:"UP", 1:"DOWN" }
+
 
 ###### FUNCTIONS ########
 
@@ -58,75 +60,84 @@ def print_log(str, file):  # str needs to end with '\n'
 
 ###### MAIN CODE BELOW ########
 
-if len(sys.argv) == 2:  # need exactly one script arg (the IP address)
-  ip_addr = sys.argv[1] # save it to a var
 
-  if IP_validation(ip_addr):    # verify the IP is valid, otherwise git to ze choppa
-    # do useful stuff
-    print(f"[ Monitoring uptime for: {ip_addr} ]")
-    
-    ping_count = 0  # all pings
-    ping_ok = 0     # good pings
+# --- start arg validation ---
 
-    try:  # you can't fail if you don't try
-        FILE = open(f"uptime_log_{ip_addr}.txt", "w")    # create/open the log file
+if len(sys.argv) != 2:  # need exactly one script arg (the IP address)
+  print("Invalid number of arguments. Please make sure the script has exactly one argument.")
+  exit
 
-        while True:     # to infinity and beyond!
-            # run a ping cmd and save results to a var
-            ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
-           
-            ping_ok += 0 if ping_result.returncode else 1   # ++ only good pings
-            ping_count += 1  # ++ all attempts
+ip_addr = sys.argv[1]   # save arg to a var
 
-            # craft a formatted log entry that includes date/time and a status message
-            log_str = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S") + " > " + \
-                      f"Host {ip_addr} is " + ("DOWN" if ping_result.returncode else "UP") + "\n"
-            
-            print_log(log_str, FILE)
-            # print(log_str, end="")  # print to console
-            # FILE.write(log_str)     # write a log entry
-            print("Ctrl+C to stop", end="\r")   # floating message
-
-            time.sleep(2)   # 2 sec timeout
-
-    except KeyboardInterrupt:   # Ctrl+C
-       print("              ")  # overwrite last line w/ spaces
-       
-       # calculate success/failure percentages
-       uptime_pct = 100 * (ping_ok / ping_count)
-       fail_pct = 100 * ((ping_count - ping_ok) / ping_count)
-       
-       # calculate stats and print/log them
-       stats = f"UPTIME STATS: Host {ip_addr} was up {round(uptime_pct)}% of the time\n"
-       print_log(stats, FILE)
-      #  print(stats, end="") # print stats
-      #  FILE.write(stats)    # log stats
-
-       # packet count stats
-       stats = f"\tPackets sent: {ping_count}\n" + \
-               f"\tPackets received: {ping_ok}\n" + \
-               f"\tPackets lost: {ping_count - ping_ok}\n"
-       print_log(stats, FILE)
-      #  print(stats, end="")
-      #  FILE.write(stats)   # log success stats
-
-
-       stats = f"({fail_pct}% pings failed)\n"
-       if fail_pct > 0: # if any pings failed
-         print_log(stats, FILE)
-        #  print(stats, end="")   # print the stats
-        #  FILE.write(stats)      # log the stats
-       
-       FILE.close()    # close the file stream
-    
-    except:     # catch-all exception handling
-       FILE.close()    # close the file stream (if still open)
-
+if (not IP_validation(ip_addr)):    # check if IP is invalid
   # git to ze choppa
-  else: print("Invalid IP detected. Please try again.")
+  print("Invalid IP detected. Please try again.")
+  exit
+
+# --- end arg validation ---
 
 
-print("\n^^^ Uptime monitor v1 - crafted by Paul Stroud ^^^")
+
+# all checks complete
+# now let's do useful stuff
+
+print(f"[ Monitoring uptime for: {ip_addr} ]")
+
+ping_count = 0  # all pings
+ping_ok = 0     # good pings
+
+try:  # you can't fail if you don't try
+    FILE = open(f"uptime_log_{ip_addr}.txt", "w")    # create/open the log file
+    last_ping = 0   # 0 is good, 1 is bad
+    while True:     # to infinity and beyond!
+        # run a ping cmd and save results to a var
+        ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
+        
+        ping_ok += 0 if ping_result.returncode else 1   # ++ only good pings
+        ping_count += 1  # ++ all attempts
+
+        # craft a formatted log entry that includes date/time and a status message
+        log_str = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S") + " > " + \
+                  f"Host {ip_addr} is " + ("DOWN" if ping_result.returncode else "UP") + "\n"
+        
+        print_log(log_str, FILE)
+        print("Ctrl+C to stop", end="\r")   # floating message
+
+        if (last_ping != ping_result.returncode):
+          print(f"ALERT: Host ({ip_addr}) status changed from {ip_status[last_ping]} to {ip_status[ping_result.returncode]}")
+
+        last_ping = ping_result.returncode
+        time.sleep(2)   # 2 sec timeout
+
+except KeyboardInterrupt:   # Ctrl+C
+    print("              ")  # overwrite last line w/ spaces
+    
+    # calculate success/failure percentages
+    uptime_pct = 100 * (ping_ok / ping_count)
+    fail_pct = 100 * ((ping_count - ping_ok) / ping_count)
+    
+    # calculate stats and print/log them
+    stats = f"UPTIME STATS: Host {ip_addr} was up {round(uptime_pct)}% of the time\n"
+    print_log(stats, FILE)
+
+    # packet count stats
+    stats = f"\tPackets sent: {ping_count}\n" + \
+            f"\tPackets received: {ping_ok}\n" + \
+            f"\tPackets lost: {ping_count - ping_ok}\n"
+    print_log(stats, FILE)
+
+
+    stats = f"({round(fail_pct)}% pings failed)\n"
+    if fail_pct > 0: # if any pings failed
+      print_log(stats, FILE)
+    
+    FILE.close()    # close the file stream
+
+except:     # catch-all exception handling
+    FILE.close()    # close the file stream (if still open)
+
+
+print("\n^^^ Uptime monitor v2 - crafted by Paul Stroud ^^^")
 
 
 # le goodbye
