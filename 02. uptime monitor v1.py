@@ -7,34 +7,55 @@
 # Purpose: Uptime monitoring script
 
 
-# Main
-
 import sys, os, datetime, time, re, subprocess
 
-ip_regex = "^(\d{1,3}\.){3}\d{1,3}$"  # define the regex
+# define the IP address regex
+ip_regex = "^(\d{1,3}\.){3}\d{1,3}$"  
 # could also use ^([0-9]{1,3}\.){3}[0-9]{1,3}$
 # both regex checks for a string that contains 3x groups of 1-3 numbers
 # where each decimal digit is between 0-9
 # the groups are separated by a '.'
 # the string ends with another group of 1-3 digits between [0-9]
 
-def IP_validation(addr):
-    if re.match(ip_regex, addr):
+
+
+def IP_validation(addr):    # validates IP address
+    if re.match(ip_regex, addr): # regex match ok?
        return True
     else: return False
 
 
 #print(f"The script has {len(sys.argv) - 1} args\narg[0]={sys.argv[0]}")
 
+
+
+###### MAIN CODE BELOW ########
+
 if len(sys.argv) == 2:  # is there a script arg?
   ip_addr = sys.argv[1]
-#   ip_regex = "^(\d{1,3}\.){3}\d{1,3}$"  # define the regex 
-#   print(dir(re.match(ip_regex, sys.argv[1])))
+
   if IP_validation(ip_addr):    # verify the IP is valid, otherwise abort
     # do useful stuff
     print(f"[ Monitoring uptime for: {ip_addr} ]")
-    ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
-    print(datetime.datetime.now(), "\t", ping_result.returncode == 0, "\n", ping_result.stdout)
+    
+    ping_count = 0
+    ping_ok = 0
+
+    try:
+        while True:
+            ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
+            ping_ok += 0 if ping_result.returncode else 1
+            ping_count += 1
+            print(datetime.datetime.now().strftime("%Y%m%d %H:%M:%S"), ">", f"Host {ip_addr} is",
+                "DOWN" if ping_result.returncode else "UP") #, "\n", ping_result.stdout)
+            print("Ctrl+C to stop", end="\r")
+            time.sleep(2)
+    except KeyboardInterrupt:
+       print("              ")
+       uptime_pct = 100 * (ping_ok / ping_count)
+       fail_pct = 100 * ((ping_count - ping_ok) / ping_count)
+       print(f"UPTIME STATS: Host {ip_addr} was up {round(uptime_pct)}% of the time")
+       if fail_pct > 0: print(f"({fail_pct}% pings failed)")
   else: print("Invalid IP detected. Please try again.")
 
 
