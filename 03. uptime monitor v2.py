@@ -71,7 +71,6 @@ def send_email(subj, msg, rcvr, sdr, sdr_pw, smtp_svr="smtp.gmail.com", smtp_por
     em.set_content(msg)
 
     test = SMTP.sendmail(sdr, rcvr, em.as_string())
-    #print("Message status:", test)
 
     SMTP.quit()
 
@@ -135,7 +134,7 @@ try:  # you can't fail if you don't try
         ping_result = subprocess.run(["ping", "-c 1", ip_addr], capture_output=True, text=True)
         pstat = ping_result.returncode # shortcut var for status code (0 is good, 1 is bad)
 
-        # pull current date/time, format, and save to a var
+        # pull current date/time; format and save to a var
         timecode = datetime.datetime.now().strftime("%Y%m%d %H:%M:%S")
 
         ping_ok += 0 if pstat else 1   # ++ only good pings
