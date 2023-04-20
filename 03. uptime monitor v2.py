@@ -25,10 +25,9 @@ import time         # for timeout/sleep
 import re           # for regex
 import subprocess   # for running bash commands
 
-import smtplib
-# import ssl
+import smtplib      # to send emails via SMTP
 from email.message import EmailMessage  # to craft emails
-import os
+import os           # to verify if file exists
 
 
 ###### GLOBAL VARS ########
@@ -41,8 +40,9 @@ ip_regex = "^(\d{1,3}\.){3}\d{1,3}$"
 # the groups are separated by a '.'
 # the string ends with another group of 1-3 digits between [0-9]
 
-ip_status = { 0:"UP", 1:"DOWN" }
-flair = [ "✓", "✗" ]
+# global arrays
+ip_status = { 0:"UP", 1:"DOWN" }  # node status messages
+flair = [ "✓", "✗" ]             # some visual flair
 
 
 ###### FUNCTIONS ########
@@ -57,10 +57,7 @@ def print_log(str, file):  # str needs to end with '\n'
     file.write(str)     # entry in the log file
     print(str, end="")  # message to console
    
-
-# def send_email(msg, addr):
-#    print(f'Sending {msg} to {addr}')
-
+# send an email via SMTP
 def send_email(subj, msg, rcvr, sdr, sdr_pw, smtp_svr="smtp.gmail.com", smtp_port=587):
     #print(f'Sending {msg} to {rcvr}')
     SMTP = smtplib.SMTP(smtp_svr, smtp_port)
@@ -124,7 +121,6 @@ else:   # manually enter the info
 
 # we're ready to go
 # now let's do useful stuff
-
 
 print(f"\n[ Monitoring uptime for: {ip_addr} ]")
 
