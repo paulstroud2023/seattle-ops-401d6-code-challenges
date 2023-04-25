@@ -3,7 +3,7 @@
 # Script: Ops 401 Class 06 script
 # Author: Paul Stroud
 # Date of latest revision: 04/24/23
-# Purpose: Uptime monitoring script v2
+# Purpose: File encryption pt1
 
 
 # MAIN REQS:
