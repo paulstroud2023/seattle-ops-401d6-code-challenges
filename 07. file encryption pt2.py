@@ -191,31 +191,26 @@ while True:
         print(f"Decrypted message: {plain}")
 
       if op == 5:   # encrypt all files in a folder
-        # try:
             dir_name = input('Enter the folder name/path ("401.07" is default): ')
             dir_name = "401.07" if (dir_name == "") else dir_name
-            if os.path.exists(dir_name):
-              files = list_dir(dir_name)
-              for i in sorted(files):
-                 encrypt_file(i, key, force="y")
+            
+            if os.path.exists(dir_name):  # if the dir exists
+              files = list_dir(dir_name)  # grab all filenames
+              for i in sorted(files):     # sort the list and encrypt each file
+                 encrypt_file(i, key, force="y")  # encrypt, force deletion w/o prompt
                  print(f"Encrypted {i}")
             else: print(f"Dir {dir_name} does not exist. Please try again.")
-        # except FileNotFoundError: print(f"File {dir_name} does not exist")
-        # except: print("OOPS") #type(exception).__name__)
 
-      if op == 6:   # encrypt all files in a folder
-        # try:
+      if op == 6:   # decrypt all files in a folder
             dir_name = input('Enter the folder name/path ("401.07" is default): ')
             dir_name = "401.07" if (dir_name == "") else dir_name
-            if os.path.exists(dir_name):
-              files = list_dir(dir_name)
-              for i in sorted(files):
-                 decrypt_file(i, key, force="y")
+
+            if os.path.exists(dir_name):  # if the dir exists
+              files = list_dir(dir_name)  # grab all filenames
+              for i in sorted(files):     # sort the list and encrypt each file
+                 decrypt_file(i, key, force="y")  # encrypt, force deletion w/o prompt
                  print(f"Decrypted {i}")
             else: print(f"Dir {dir_name} does not exist. Please try again.")
-        # except FileNotFoundError: print(f"File {dir_name} does not exist")
-        # except: print("OOPS") #type(exception).__name__)
-
 
 
 print("Script complete!")
