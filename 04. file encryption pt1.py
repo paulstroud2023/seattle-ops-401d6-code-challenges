@@ -36,7 +36,7 @@ import sys          # for parsing script args
 
 # import smtplib      # to send emails via SMTP
 # from email.message import EmailMessage  # to craft emails
-# import os           # to verify if file exists
+import os           # to verify if file exists
 
 
 from cryptography.fernet import Fernet
@@ -52,21 +52,48 @@ def save_cryptokey(name = "401.06.key"):
 def load_cryptokey(name = "401.06.key"):
     return open(name, "rb").read()
 
-def encrypt_file(name):
+def encrypt_file(name, key):
     enc_name = name + ".enc"
     
 
-# def decrypt_file():
+def decrypt_file():
+    print("TEST")
 
-# def encrypt_msg():
+# encrypt a message string
+def encrypt_msg(msg, key):
+    return Fernet(key).encrypt(msg.encode())
 
 
-# def decrypt_msg():
+def decrypt_msg(msg, key):
+    return Fernet(key).decrypt(msg)
+   
+# global dictionary of functions/operations to reference in the main
+op_array = { 1:encrypt_file, 2:decrypt_file, 3:encrypt_msg, 4:decrypt_msg } 
+
+
 
 
 # menu loop
+key_name = input('Enter the crypto key_name name ("401.06.key" is default): ')
+key_name = "401.06.key" if (key_name == "") else key_name  # if nothing entered, use the default key name
+
+
+if not os.path.exists(key_name):
+   print(f"Creating a new key {key_name}... ", end="")
+   save_cryptokey(key_name)
+   print("DONE")
+
+print(f"Loading {key_name}... ", end="")
+key = load_cryptokey(key_name)
+print("DONE")
+
+
+
+
+# print(key)
+# input()
 while True:
-    print("[ Encryption Utility v1.0 ]")
+    print("\n>>> Encryption Utility v1.0 <<<")
     print("Select the operation to perform:")
     print("\t1. Encrypt a file")
     print("\t2. Decrypt a file")
@@ -82,13 +109,33 @@ while True:
          print("Invalid input. Please try again.")
 
     if op == 5:
-       print("Exiting the script...")
-       sys.exit()
-print("BOOM")
-input()
+      print("Exiting the script...")
+      sys.exit()
+    else:
+      if op == 3:
+         plain = input("Enter the message to encrypt: ")
+         cipher = encrypt_msg(plain, key)
+         print(f"Encrypted message: {cipher.decode('utf-8')}")
+      if op == 4:
+         cipher = input("Enter the message to decrypt: ").encode()
+         plain = decrypt_msg(cipher, key)
+         print(f"Decrypted message: {plain.decode('utf-8')}")
+
+# print("BOOM")
+# input()
 
 
 
-print (Fernet.generate_key())
+# print (Fernet.generate_key())
+
+
+
+
+
+# test = input("TEST: ")
+# print(test.encode())
+# input()
+
+
 
 
