@@ -52,20 +52,29 @@ def save_cryptokey(name = "401.06.key"):
 def load_cryptokey(name = "401.06.key"):
     return open(name, "rb").read()
 
+
+
 def encrypt_file(name, key):
     enc_name = name + ".enc"
     
-
 def decrypt_file():
     print("TEST")
 
-# encrypt a message string
-def encrypt_msg(msg, key):
-    return Fernet(key).encrypt(msg.encode())
 
 
-def decrypt_msg(msg, key):
-    return Fernet(key).decrypt(msg)
+# encrypt a plaintext message string
+def encrypt_msg(msg, key):  # `msg` is a string, `key` is the crypto key file
+    # encode plaintext string as bytes
+    # create a new crypto/Fernet obj to encrypt the encoded string
+    # decode the ciphertext back into a string and return the result
+    return Fernet(key).encrypt(msg.encode()).decode('utf-8')
+
+# decrypt a ciphertext message string
+def decrypt_msg(msg, key): # `msg` is a string, `key` is the crypto key file
+    # encode ciphertext string as bytes
+    # create a new crypto/Fernet obj to decrypt the encoded string
+    # decode the plaintext back into a string and return the result
+    return Fernet(key).decrypt(msg.encode()).decode('utf-8')
    
 # global dictionary of functions/operations to reference in the main
 op_array = { 1:encrypt_file, 2:decrypt_file, 3:encrypt_msg, 4:decrypt_msg } 
@@ -112,14 +121,18 @@ while True:
       print("Exiting the script...")
       sys.exit()
     else:
+      if op == 1:
+         print("1")
+      if op == 2:
+         print("2")
       if op == 3:
          plain = input("Enter the message to encrypt: ")
          cipher = encrypt_msg(plain, key)
-         print(f"Encrypted message: {cipher.decode('utf-8')}")
+         print(f"Encrypted message: {cipher}")
       if op == 4:
-         cipher = input("Enter the message to decrypt: ").encode()
+         cipher = input("Enter the message to decrypt: ")
          plain = decrypt_msg(cipher, key)
-         print(f"Decrypted message: {plain.decode('utf-8')}")
+         print(f"Decrypted message: {plain}")
 
 # print("BOOM")
 # input()
