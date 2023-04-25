@@ -186,7 +186,7 @@ while True:
         if os.path.exists(dir_name):  # if the dir exists
           files = list_dir(dir_name)  # grab all filenames
           for i in sorted(files):     # sort the list and encrypt each file
-              decrypt_file(i, key, force="y")  # encrypt, force deletion w/o prompt
+              decrypt_file(i, key, force="y")  # decrypt, force deletion w/o prompt
               print(f"Decrypted {i}")
         else: print(f"Dir {dir_name} does not exist. Please try again.")
 
