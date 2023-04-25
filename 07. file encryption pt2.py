@@ -46,37 +46,44 @@ def load_cryptokey(name):
     return open(name, "rb").read()
 
 
-# encrypt a file using the given crypto key
-def encrypt_file(name, key):
+# encrypt a file using the given crypto key (v2.0)
+def encrypt_file(name, key, force="n"):
     enc_name = name + ".enc"                # encrypted file name
     cleartext = open(name, "rb").read()     # read the source file
     ciphertext = Fernet(key).encrypt(cleartext) # encrypt the data
     open(enc_name, "wb").write(ciphertext)  # write out to a new file
 
+    if force == "y":  # quietly delete the file and stop the function
+       os.remove(name)
+       return
+    
     # prompt the user to delete the original file (default is yes)
     while True:
-      cln = input(f"Delete the original file {fname}?  (Y/n): ")
+      cln = input(f"Delete the original file {name}?  (Y/n): ")
       if cln == "y" or cln == "Y" or cln == "":
         os.remove(name) # nuke the file
         break           # break the loop
       if cln == "n" or cln == "N": break  # break the loop without deleting
     
 
-# decrypt a file using the given crypto key
-def decrypt_file(name, key):
+# decrypt a file using the given crypto key (v2.0)
+def decrypt_file(name, key, force="n"):
     dec_name = name.split(".enc")[0]      # extract decrypted file name
     ciphertext = open(name, "rb").read()  # read the source file
     cleartext = Fernet(key).decrypt(ciphertext) # decrypt the data
     open(dec_name, "wb").write(cleartext) # write out to a new file
 
+    if force == "y":  # quietly delete the file and stop the function
+       os.remove(name)
+       return
+
     # prompt the user to delete the original file (default is yes)
     while True:
-      cln = input(f"Delete the original file {fname}?  (Y/n): ")
+      cln = input(f"Delete the original file {name}?  (Y/n): ")
       if cln == "y" or cln == "Y" or cln == "":
         os.remove(name) # nuke the file
         break           # break the loop
       if cln == "n" or cln == "N": break  # break the loop without deleting
-
 
 
 # encrypt a plaintext message string
@@ -96,10 +103,10 @@ def decrypt_msg(msg, key): # `msg` is a string, `key` is the crypto key file
 
 # --- new definitions below ---
 
-def list_dir():
+def list_dir(dir_name):
     # Begin recursive directory crawl
     filelist = []
-    for root, dirs, files in os.walk(".", topdown=False):
+    for root, dirs, files in os.walk(dir_name):
     # For each hit, concatenate the current directory pathing to left of result
       for file in files:
          filelist.append(os.path.join(root, file))
@@ -146,7 +153,7 @@ while True:
           "\n\t0. Exit")
 
     op = -1  # holds user input
-    while not (op >= 0 and op <= 5):
+    while not (op >= 0 and op <= 6):
       try:
          op = int(input("Enter a menu option (1-5): "))
       except KeyboardInterrupt:   # Ctrl+C
@@ -184,15 +191,31 @@ while True:
         print(f"Decrypted message: {plain}")
 
       if op == 5:   # encrypt all files in a folder
-        try:
+        # try:
             dir_name = input('Enter the folder name/path ("401.07" is default): ')
-            dir_name = "401.07.key" if (dir_name == "") else dir_name
-            files = list_dir()
-            for i in files:
-              #  encrypt_file(i, key)
-               print(f"Encrypted {i}")
+            dir_name = "401.07" if (dir_name == "") else dir_name
+            if os.path.exists(dir_name):
+              files = list_dir(dir_name)
+              for i in sorted(files):
+                 encrypt_file(i, key, force="y")
+                 print(f"Encrypted {i}")
+            else: print(f"Dir {dir_name} does not exist. Please try again.")
         # except FileNotFoundError: print(f"File {dir_name} does not exist")
-        except: print(type(exception).__name__)
+        # except: print("OOPS") #type(exception).__name__)
+
+      if op == 6:   # encrypt all files in a folder
+        # try:
+            dir_name = input('Enter the folder name/path ("401.07" is default): ')
+            dir_name = "401.07" if (dir_name == "") else dir_name
+            if os.path.exists(dir_name):
+              files = list_dir(dir_name)
+              for i in sorted(files):
+                 decrypt_file(i, key, force="y")
+                 print(f"Decrypted {i}")
+            else: print(f"Dir {dir_name} does not exist. Please try again.")
+        # except FileNotFoundError: print(f"File {dir_name} does not exist")
+        # except: print("OOPS") #type(exception).__name__)
+
 
 
 print("Script complete!")
