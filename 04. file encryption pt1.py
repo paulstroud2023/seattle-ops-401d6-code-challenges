@@ -96,7 +96,7 @@ def decrypt_msg(msg, key): # `msg` is a string, `key` is the crypto key file
 
 ###### MAIN CODE ########
 
-key_name = input('Enter the crypto key_name name ("401.06.key" is default): ')
+key_name = input('Enter the crypto key name ("401.06.key" is default): ')
 key_name = "401.06.key" if (key_name == "") else key_name  # if nothing entered, use the default key name
 
 # if key file doesn't exist, create a new one
