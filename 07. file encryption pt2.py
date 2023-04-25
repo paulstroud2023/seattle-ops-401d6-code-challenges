@@ -133,7 +133,7 @@ while True:
     op = -1  # holds user input
     while not (op >= 0 and op <= 6):
       try:
-         op = int(input("Enter a menu option (1-5): "))
+         op = int(input("Enter a menu option (0-6): "))
       except KeyboardInterrupt:   # Ctrl+C
          print()
          sys.exit()
