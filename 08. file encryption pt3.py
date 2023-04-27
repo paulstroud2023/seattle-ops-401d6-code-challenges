@@ -4,6 +4,7 @@
 # Author: Paul Stroud
 # Date of latest revision: 04/26/23
 # Purpose: File encryption pt3
+# Resources used: google, stackoverflow, github demo, chatgpt
 
 
 # MAIN REQS:
@@ -73,8 +74,6 @@ def ransom():
     window.update_idletasks()
     window.update()
     window.attributes('-topmost', True)
-
-
 
     
     start_time = datetime.datetime.now()  # get the current time
