@@ -48,6 +48,7 @@ popup_msg = 'Your data has been ENCRYPTED. \
              \n\n(Press Ctrl+C in the terminal to stop simulation)'
 font_size = 50
 img_path = r'C:\Users\Lab User\NEW_IMG.png'
+img_path = os.environ["USERPROFILE"] + "\\NEW_IMG.png"
 
 
 
