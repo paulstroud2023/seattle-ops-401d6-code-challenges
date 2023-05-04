@@ -104,35 +104,29 @@ while True:
         cidr = "192.168.1.0/24" if (cidr == "") else cidr
 
         # display network info - net addr, broadcast, subnet mask
-        print(f"Info for {cidr}:")
+        print(f"  Net info for {cidr}:")
         net = ipaddress.IPv4Network(cidr)
-        print("  Network address: ", net.network_address)
-        print("  Broadcast address: ", net.broadcast_address)
-        print("  Subnet mask: ", net.netmask)
+        print("\tNetwork address: ", net.network_address)
+        print("\tBroadcast address: ", net.broadcast_address)
+        print("\tSubnet mask: ", net.netmask)
 
-
+        up_count = 0
+        ip_count = 0
         for ip in net.hosts():
+           ip_count += 1
            ip_str = str(ip)
-           print(f'{ip_str} > ', end='')
+           print(f'  Ping to {ip_str}: > ', end='')
            ping_reply = sr1(IP(dst=ip_str)/ICMP(), timeout=1, verbose=0)
 
-           print(f"  Ping to {ip_str}:", ping_reply)
-           if ping_reply == None: print("NO RESPONSE")
-           else: print("ICMP type", ping_reply.getlayer(ICMP).type, "code", ping_reply.getlayer(ICMP).code)
+           if ping_reply == None: print("Host down / No response")
+           else: 
+             if (ping_reply.getlayer(ICMP).type == 3 and ping_reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]):
+                print("Host is blocking ICMP traffic")
+             else: 
+               print("Host is up")
+               up_count += 1
+        
+        print(f"STATS: {up_count}/{ip_count} hosts are up on {cidr}")
 
-
-          #  # If the response is empty, then the host is down
-          #  if response is None:
-          #    print("Host down")
-
-          #  # Check for ICMP codes
-          #  elif response.haslayer(ICMP):
-          #    print(response.getlayer(ICMP).code) # now compare the reutnred code to 1, 2, 3, 9, 10, or 13.
-                # Then the host is actively blocking ICMP traffic.
-                # How do you cast to Integer in Python? String ->(cast) Integer "2" X 2 => int("2")
-            # if no codes and reponse is good, host is up and responding! sebnd a RST(reset)
-
-
-print("\nScript complete!")
 
 # end of script
