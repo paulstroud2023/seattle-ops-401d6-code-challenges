@@ -84,7 +84,7 @@ while True:
           response = sr1(IP(dst=host)/TCP(sport=src_port, dport=dst_port, flags="S"), timeout=1, verbose=0)
 
           if(response == None): # if request timed out
-            print(f"   Port {dst_port} timed out.")
+            print(f"   Port {dst_port} timed out")
 
           elif(response.haslayer(TCP)): # valid response received?
             # SYN/ACK flag, port open
