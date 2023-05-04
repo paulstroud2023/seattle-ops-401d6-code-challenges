@@ -3,7 +3,7 @@
 # Script: Ops 401 Class 12 script
 # Author: Paul Stroud
 # Date of latest revision: 05/02/23
-# Purpose: Network Scanner pt1
+# Purpose: Network Scanner pt2
 # Resources used: Alex White, google, stackoverflow, github demo, chatgpt
 
 # MAIN REQS:
@@ -28,6 +28,12 @@ import random # for random num gen
 from scapy.all import ICMP, IP, sr1, TCP  # import relevant tools from scapy
 import ipaddress  # to work w/ IP addresses
 import time   # for time.sleep() timeout
+
+
+import logging  # to eliminate "WARNING" messages from scapy
+
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)  # change log level to errors only
+
 
 
 # check for admin access
@@ -93,45 +99,35 @@ while True:
 
  
       if mode == 2:   # ICMP Ping Sweep
-        # Declare Variables
-        # ip = "127.0.0.1"
-        # myIp = "10.0.0.68"
-        # host = "scanme.nmap.org"
-        # network = '10.0.0.1/24'
 
-        # ----- Initialize an IPv4Address! -----
-        # ip4 = ipaddress.IPv4Address(ip)
-        # print(ip4.is_multicast)
-          # Print True if the IP address is a loopback address.
-        # print("Is loopback: ", ip4.is_loopback)
+        cidr = input('Enter a CIDR network address (default = 192.168.1.0/24)): ')
+        cidr = "192.168.1.0/24" if (cidr == "") else cidr
 
-        # read target IP from user input; otherwise use default
-        net = input('Enter a CIDR network address (default = 192.168.1.0/24)): ')
-        net = "192.168.1.0/24" if (net == "") else net
+        # display network info - net addr, broadcast, subnet mask
+        print(f"Info for {cidr}:")
+        net = ipaddress.IPv4Network(cidr)
+        print("  Network address: ", net.network_address)
+        print("  Broadcast address: ", net.broadcast_address)
+        print("  Subnet mask: ", net.netmask)
 
 
-        # ----- Initialize an IPv4Network() -----
-        ip4Network = ipaddress.IPv4Network(net)
-        # Print the network address of the network.
-        print("Network address of the network: ", ip4Network.network_address)
+        for ip in net.hosts():
+           ip_str = str(ip)
+           print(f'{ip_str} > ', end='')
+           ping_reply = sr1(IP(dst=ip_str)/ICMP(), timeout=1, verbose=0)
 
-          # Print the broadcast address
-        print("Broadcast address: ", ip4Network.broadcast_address)
+           print(f"  Ping to {ip_str}:", ping_reply)
+           if ping_reply == None: print("NO RESPONSE")
+           else: print("ICMP type", ping_reply.getlayer(ICMP).type, "code", ping_reply.getlayer(ICMP).code)
 
-          # Print the network mask.
-        print("Network mask: ", ip4Network.netmask)
 
-        for ip in ip4Network.hosts():
-           print(f'{ip} > ', end='')
-           response = sr1(IP(dst=ip)/ICMP(), timeout=1, verbose=0)
+          #  # If the response is empty, then the host is down
+          #  if response is None:
+          #    print("Host down")
 
-           # If the response is empty, then the host is down
-           if response is None:
-             print("Host down")
-
-           # Check for ICMP codes
-           elif response.haslayer(ICMP):
-             print(response.getlayer(ICMP).code) # now compare the reutnred code to 1, 2, 3, 9, 10, or 13.
+          #  # Check for ICMP codes
+          #  elif response.haslayer(ICMP):
+          #    print(response.getlayer(ICMP).code) # now compare the reutnred code to 1, 2, 3, 9, 10, or 13.
                 # Then the host is actively blocking ICMP traffic.
                 # How do you cast to Integer in Python? String ->(cast) Integer "2" X 2 => int("2")
             # if no codes and reponse is good, host is up and responding! sebnd a RST(reset)
