@@ -98,7 +98,7 @@ for ip in net.hosts():
       if (ping_reply.getlayer(ICMP).type == 3 and ping_reply.getlayer(ICMP).code in [1, 2, 3, 9, 10, 13]):
         print("Host is blocking ICMP traffic")
       else: 
-        print("Host is up")
+        print("Host is UP")
         tcp_port_scan(ip_str)
         up_count += 1
 

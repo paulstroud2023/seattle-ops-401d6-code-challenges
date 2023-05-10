@@ -111,6 +111,7 @@ if len(sys.argv) == 2:  # need exactly one script arg (the IP address)
 
   # git to ze choppa
   else: print("Invalid IP detected. Please try again.")
+
 else: print("Invalid number of arguments. Please make sure the script has exactly one argument.")
 
 print("\n^^^ Uptime monitor v1 - crafted by Paul Stroud ^^^")

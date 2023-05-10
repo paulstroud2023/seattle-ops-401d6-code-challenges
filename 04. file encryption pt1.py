@@ -55,7 +55,7 @@ def encrypt_file(name, key):
 
     # prompt the user to delete the original file (default is yes)
     while True:
-      cln = input(f"Delete the original file {fname}?  (Y/n): ")
+      cln = input(f"Delete the original file {name}?  (Y/n): ")
       if cln == "y" or cln == "Y" or cln == "":
         os.remove(name) # nuke the file
         break           # break the loop
@@ -71,7 +71,7 @@ def decrypt_file(name, key):
 
     # prompt the user to delete the original file (default is yes)
     while True:
-      cln = input(f"Delete the original file {fname}?  (Y/n): ")
+      cln = input(f"Delete the original file {name}?  (Y/n): ")
       if cln == "y" or cln == "Y" or cln == "":
         os.remove(name) # nuke the file
         break           # break the loop

@@ -58,13 +58,6 @@ except: # incorrect number of args
     sys.exit()
 
 
-# if len(sys.argv) > 1:
-#   wordlist = sys.argv[1]
-# else: 
-#   wordlist = input('Enter the wordlist file ("/usr/share/wordlists/rockyou.txt" is default): ')
-#   ### if nothing entered, use the default filename
-#   wordlist = "/usr/share/wordlists/rockyou.txt" if (wordlist == "") else wordlist 
-
 # menu loop
 while True:
     time.sleep(1)
