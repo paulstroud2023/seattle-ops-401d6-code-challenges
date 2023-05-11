@@ -59,8 +59,8 @@ while True:
     time.sleep(1)
     print("\n>>> Brute Force Tool v3.0 <<<")
     print("Select the operation to perform:" \
-          f"\n\t1. SSH Dictionary Attack on {ip}" \
-          f"\n\t2. Password Lookup in {wordlist}" \
+          f"\n\t1. SSH Dictionary Attack" \
+          f"\n\t2. Password Lookup" \
           f"\n\t3. Brute force a zip file" \
           "\n\t0. Exit")
 
@@ -125,7 +125,7 @@ while True:
             file = open(wordlist, "rt")
             for pw in file:   # iterate over each line/word in the wordlist
               pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
-              print(f"   {zip}:{pw1} > ", " " * (15 - len(pw1)), sep="", end="")  # pad spaces for up to 15 chars
+              print(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
               try:
                   # attempt to extract files using the pw from wordlist
                   var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
