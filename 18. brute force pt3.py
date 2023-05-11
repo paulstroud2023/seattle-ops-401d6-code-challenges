@@ -111,9 +111,10 @@ while True:
         try:
             file = open(wordlist, "rt")
             for pw in file:
+               pw1 = pw.strip()
                i += 1
-               if (test == pw.strip()):
-                 print(f"MATCH FOUND!   Line {i}: {test} - {pw.strip()}")
+               if (test == pw1):
+                 print(f"MATCH FOUND!   Line {i}: {test} - {pw1}")
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
       if op == 3:   # brute force a zip file
@@ -127,7 +128,7 @@ while True:
               print(f"   {zip}:{pw1} > ", " " * (15 - len(pw1)), sep="", end="")  # pad spaces for up to 15 chars
               try:
                   # attempt to extract files using the pw from wordlist
-                  var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1.strip(), "UTF-8"))
+                  var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
                   # if no exceptions thrown, we are good!
                   print("SUCCESS")
                   break # stop iteration
