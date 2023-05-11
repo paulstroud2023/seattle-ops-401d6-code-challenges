@@ -7,15 +7,14 @@
 # Resources used: google, stackoverflow, github demo, chatgpt
 
 # MAIN REQS:
-# Next, add a new mode to your Python brute force tool that allows you to brute force attack a password-locked zip file.
-
+# Add a new mode to your Python brute force tool that allows you to brute force attack a password-locked zip file.
 # Use the zipfile library.
-# Pass it the RockYou.txt list to test all words in the list against the password-locked zip file.
+# Pass it the wordlist to test all words in the list against the password-locked zip file.
 
-import zipfile
+import zipfile  # for working with zip files
 
-import sys    # for args and sys.exit() to kill the script
-import time   # for time.sleep() timeout
+import sys      # for args and sys.exit() to kill the script
+import time     # for time.sleep() timeout
 
 import paramiko # for SSH connections and remote execution
 
@@ -48,13 +47,9 @@ def connect_ssh(host, username, pw, port=22):
 
 
 try:    # grab parameters from script arguments
-    ip = sys.argv[1]        # target ip
-    user = sys.argv[2]      # username for SSH login
-    wordlist = sys.argv[3]  # dictionary file
+    wordlist = sys.argv[1]  # dictionary file
 except: # incorrect number of args
-    print("Invalid arguments.\n" \
-          "Please provide 3 arguments for this script.\n" \
-          "Format: <ip> <username> <wordlist>\n\n" \
+    print("Please provide a wordlist file as the argument to this script.\n" \
           "Exiting...")
     sys.exit()
 
@@ -70,9 +65,9 @@ while True:
           "\n\t0. Exit")
 
     op = -1  # holds user input
-    while not (op >= 0 and op <= 2):
+    while not (op >= 0 and op <= 3):
       try:
-         op = int(input("Enter a menu option (0-2): "))
+         op = int(input("Enter a menu option (0-3): "))
       except KeyboardInterrupt:   # Ctrl+C
          print()
          sys.exit()
@@ -84,6 +79,9 @@ while True:
       sys.exit()  # kill the script
     else:
       if op == 1:   # password iterator
+        ip = input("Enter target IP: ")
+        user = input("Enter username for SSH login: ")
+
         print(f"Parsing {wordlist} as the wordlist file.")
         try:
             file = open(wordlist, "rt")
@@ -109,6 +107,7 @@ while True:
         test = input("Input the password to look up: ")
         print(f"Looking for {test} in {wordlist}:")
         i = 0   # line counter
+        print(f"Parsing {wordlist} as the wordlist file.")
         try:
             file = open(wordlist, "rt")
             for pw in file:
@@ -117,4 +116,27 @@ while True:
                  print(f"MATCH FOUND!   Line {i}: {test} - {pw.strip()}")
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
+      if op == 3:   # brute force a zip file
+        zip = input('Enter the zip archive to open (default = "test.zip")')
+        zip = "test.zip" if zip == "" else zip
+        print(f"Parsing {wordlist} as the wordlist file.")
+        try:
+            file = open(wordlist, "rt")
+            for pw in file:   # iterate over each line/word in the wordlist
+              pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
+              print(f"   {zip}:{pw1} > ", " " * (15 - len(pw1)), sep="", end="")  # pad spaces for up to 15 chars
+              try:
+                  # attempt to extract files using the pw from wordlist
+                  var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1.strip(), "UTF-8"))
+                  # if no exceptions thrown, we are good!
+                  print("SUCCESS")
+                  break # stop iteration
+              except Exception as exc:
+                  # exception: first two words are "bad password"?
+                  if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
+                    print("fail")
+                  # for any other exceptions
+                  else: print(f"Unknown error opening {zip}")
+        except FileNotFoundError: print(f"File {wordlist} does not exist")
+        
 # end of script
