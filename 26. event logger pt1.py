@@ -20,7 +20,19 @@ import time     # for time.sleep() timeout
 
 import paramiko # for SSH connections and remote execution
 
+import logging
+
+logging.basicConfig(filename='401.26.log', format='%(asctime)s %(message)s', filemode='w')
+
+script_log = logging.getLogger()
+
 ### FUNCTIONS ####
+
+
+def add_log_entry(message):
+   script_log.debug(message)
+
+
 
 # SSH connect to <host> on <port> using <username>:<pw>
 def connect_ssh(host, username, pw, port=22):
