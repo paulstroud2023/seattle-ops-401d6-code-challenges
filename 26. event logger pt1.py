@@ -13,6 +13,14 @@
 #   Confirm your logging feature is working as expected.
 
 
+# NEW CODE AT A GLANCE:
+#   Imported the logging library, created and configured a log object
+#   Added a new function print_log() to add output both to console and to log file
+#   Changed key print() calls to print_log() instead
+#   Added menu option to turn logging on/off
+
+
+
 import zipfile  # for working with zip files
 
 import sys      # for args and sys.exit() to kill the script
@@ -20,15 +28,14 @@ import time     # for time.sleep() timeout
 
 import paramiko # for SSH connections and remote execution
 
-import logging
+import logging  # for log mgmt
 
-log_on = 1
-log_status = { 0:"DISABLE", 1:"ENABLE" }
+log_on = 1  # global var  to switch logging on/off
+log_status = { 0:"DISABLE", 1:"ENABLE" }  # dict to store logging states
 
-
-# Create a custom formatter
-formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y%m%d.%H%M%S')
-
+# log entry formatting
+# 
+#formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y%m%d.%H%M%S')
 # Configure the logging module with the custom formatter
 logging.basicConfig(filename='401.26.log',
                     format='%(asctime)s: %(levelname)s:\t%(message)s', 
@@ -37,8 +44,6 @@ logging.basicConfig(filename='401.26.log',
 
 lumber = logging.getLogger()
 
-# Log a message
-#lumber.info('This is a custom log message.')
 
 
 
@@ -53,9 +58,9 @@ lumber = logging.getLogger()
 
 
 # print string to stdout and log according to instructions
-def print_log(str):   
+def print_log(str, log, lvl):  # new def to allow for variable log object and log level
     print(str)
-    lumber.error(str)
+    getattr(log, lvl)(str)     # add log entry with the level defined by lvl
    
 
 # SSH connect to <host> on <port> using <username>:<pw>
@@ -123,13 +128,13 @@ while True:
       
       if op == 4:   # turn logging on/off
         print(f"Logging is currently {log_status[log_on]}D")
-        sw = ""
-        while (sw != 'y' and sw != 'n'):
+        sw = ""   # var to switch on/off
+        while (sw != 'y' and sw != 'n'):  # grab user input
              sw = input(f"Enter y/n to {log_status[1-log_on]} logging: ")
-        log_on = log_on if sw == "n" else 1 -log_on
-        new_level = logging.NOTSET if log_on else logging.CRITICAL
+        log_on = log_on if sw == "n" else 1-log_on   # switch log setting if 'y'
+        new_level = logging.NOTSET if log_on else logging.CRITICAL  # assign correct logging level
         #print(new_level)
-        logging.disable(new_level)
+        logging.disable(new_level)  # disable all logging at new_level and above; NOTSET enables all
         if (sw == 'y'): print(f"Logging is now {log_status[log_on]}D")
         
 
@@ -153,13 +158,11 @@ while True:
                   
                   except Exception as exc:  # it's broken
                       print_log(f"Error retrieving password hashes. Exception: {exc}")
-                      #print(f"Error retrieving password hashes. Exception: {exc}")
                   
                   break   # exit the loop after finding the right password
 
                time.sleep(1)  # delay before trying the next pw
-        except FileNotFoundError:
-           print_log(f"File {wordlist} does not exist") 
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist") 
            
 
       if op == 2:   # password lookup
@@ -174,7 +177,7 @@ while True:
                i += 1
                if (test == pw1):
                  print(f"MATCH FOUND!   Line {i}: {test} - {pw1}")
-        except FileNotFoundError: print(f"File {wordlist} does not exist")
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist")
 
       if op == 3:   # brute force a zip file
         zip = input('Enter the zip archive to open (default = "test.zip")')
@@ -184,7 +187,7 @@ while True:
             file = open(wordlist, "rt")
             for pw in file:   # iterate over each line/word in the wordlist
               pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
-              print(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
+              print_log(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
               try:
                   # attempt to extract files using the pw from wordlist
                   var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
@@ -196,7 +199,7 @@ while True:
                   if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
                     print("fail")
                   # for any other exceptions
-                  else: print(f"Unknown error opening {zip}")
-        except FileNotFoundError: print(f"File {wordlist} does not exist")
+                  else: print_log(f"Unknown error opening {zip}")
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist")
         
 # end of script
