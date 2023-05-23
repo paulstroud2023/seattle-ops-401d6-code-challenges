@@ -157,12 +157,12 @@ while True:
                       print("^^^ END OF HASHES ^^^")
                   
                   except Exception as exc:  # it's broken
-                      print_log(f"Error retrieving password hashes. Exception: {exc}")
+                      print_log(f"Error retrieving password hashes. Exception: {exc}", lumber, "error")
                   
                   break   # exit the loop after finding the right password
 
                time.sleep(1)  # delay before trying the next pw
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist") 
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error") 
            
 
       if op == 2:   # password lookup
@@ -176,8 +176,8 @@ while True:
                pw1 = pw.strip()
                i += 1
                if (test == pw1):
-                 print(f"MATCH FOUND!   Line {i}: {test} - {pw1}")
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist")
+                 print_log(f"MATCH FOUND!   Line {i}: {test} - {pw1}", lumber, "info")
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error")
 
       if op == 3:   # brute force a zip file
         zip = input('Enter the zip archive to open (default = "test.zip")')
@@ -187,19 +187,20 @@ while True:
             file = open(wordlist, "rt")
             for pw in file:   # iterate over each line/word in the wordlist
               pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
-              print_log(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
+              print(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
               try:
                   # attempt to extract files using the pw from wordlist
                   var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
                   # if no exceptions thrown, we are good!
                   print("SUCCESS")
+                  print_log(f"Found password for {zip}:\t{pw1}", lumber, "info")
                   break # stop iteration
               except Exception as exc:
                   # exception: first two words are "bad password"?
                   if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
                     print("fail")
                   # for any other exceptions
-                  else: print_log(f"Unknown error opening {zip}")
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist")
+                  else: print_log(f"Unknown error opening {zip}", lumber, "error")
+        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error")
         
 # end of script
