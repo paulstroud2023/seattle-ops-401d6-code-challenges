@@ -22,17 +22,41 @@ import paramiko # for SSH connections and remote execution
 
 import logging
 
-logging.basicConfig(filename='401.26.log', format='%(asctime)s %(message)s', filemode='w')
+log_on = 1
+log_status = { 0:"DISABLE", 1:"ENABLE" }
 
-script_log = logging.getLogger()
+
+# Create a custom formatter
+formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y%m%d.%H%M%S')
+
+# Configure the logging module with the custom formatter
+logging.basicConfig(filename='401.26.log',
+                    format='%(asctime)s: %(levelname)s:\t%(message)s', 
+                    datefmt='%Y%m%d.%H%M%S', 
+                    level=logging.DEBUG)
+
+lumber = logging.getLogger()
+
+# Log a message
+#lumber.info('This is a custom log message.')
+
+
+
+#logging.basicConfig(filename='401.26.log', format='%(asctime)s %(message)s', filemode='w')
+#script_log = logging.getLogger()
 
 ### FUNCTIONS ####
 
 
-def add_log_entry(message):
-   script_log.debug(message)
+#def add_log_entry(message):
+#   script_log.debug(message)
 
 
+# print string to stdout and log according to instructions
+def print_log(str):   
+    print(str)
+    lumber.error(str)
+   
 
 # SSH connect to <host> on <port> using <username>:<pw>
 def connect_ssh(host, username, pw, port=22):
@@ -53,6 +77,7 @@ def connect_ssh(host, username, pw, port=22):
 
     except KeyboardInterrupt:   # Ctrl+C interrupt
       print("\nStopped by user. Exiting...")
+      lumber.critical("Execution stopped by user. (Ctrl+C)")
       sys.exit()
 
    
@@ -65,6 +90,7 @@ try:    # grab parameters from script arguments
 except: # incorrect number of args
     print("Please provide a wordlist file as the argument to this script.\n" \
           "Exiting...")
+    lumber.error("No wordlist file provided.")
     sys.exit()
 
 
@@ -76,12 +102,13 @@ while True:
           f"\n\t1. SSH Dictionary Attack" \
           f"\n\t2. Password Lookup" \
           f"\n\t3. Brute force a zip file" \
+          f"\n\t4. Enable/disable logging" \
           "\n\t0. Exit")
 
     op = -1  # holds user input
-    while not (op >= 0 and op <= 3):
+    while not (op >= 0 and op <= 4):
       try:
-         op = int(input("Enter a menu option (0-3): "))
+         op = int(input("Enter a menu option (0-4): "))
       except KeyboardInterrupt:   # Ctrl+C
          print()
          sys.exit()
@@ -90,8 +117,23 @@ while True:
 
     if op == 0:
       print("Exiting the script...")
+      lumber.info("Script completed successfully")
       sys.exit()  # kill the script
     else:
+      
+      if op == 4:   # turn logging on/off
+        print(f"Logging is currently {log_status[log_on]}D")
+        sw = ""
+        while (sw != 'y' and sw != 'n'):
+             sw = input(f"Enter y/n to {log_status[1-log_on]} logging: ")
+        log_on = log_on if sw == "n" else 1 -log_on
+        new_level = logging.NOTSET if log_on else logging.CRITICAL
+        #print(new_level)
+        logging.disable(new_level)
+        if (sw == 'y'): print(f"Logging is now {log_status[log_on]}D")
+        
+
+
       if op == 1:   # password iterator
         ip = input("Enter target IP: ")
         user = input("Enter username for SSH login: ")
@@ -110,12 +152,15 @@ while True:
                       print("^^^ END OF HASHES ^^^")
                   
                   except Exception as exc:  # it's broken
-                      print(f"Error retrieving password hashes. Exception: {exc}")
+                      print_log(f"Error retrieving password hashes. Exception: {exc}")
+                      #print(f"Error retrieving password hashes. Exception: {exc}")
                   
                   break   # exit the loop after finding the right password
 
                time.sleep(1)  # delay before trying the next pw
-        except FileNotFoundError: print(f"File {wordlist} does not exist")
+        except FileNotFoundError:
+           print_log(f"File {wordlist} does not exist") 
+           
 
       if op == 2:   # password lookup
         test = input("Input the password to look up: ")
