@@ -33,28 +33,16 @@ import logging  # for log mgmt
 log_on = 1  # global var  to switch logging on/off
 log_status = { 0:"DISABLE", 1:"ENABLE" }  # dict to store logging states
 
-# log entry formatting
-# 
-#formatter = logging.Formatter('%(asctime)s %(message)s', datefmt='%Y%m%d.%H%M%S')
-# Configure the logging module with the custom formatter
+# configure log file, message format, and verbosity
 logging.basicConfig(filename='401.26.log',
                     format='%(asctime)s: %(levelname)s:\t%(message)s', 
                     datefmt='%Y%m%d.%H%M%S', 
                     level=logging.DEBUG)
 
-lumber = logging.getLogger()
+lumber = logging.getLogger()  # log object
 
-
-
-
-#logging.basicConfig(filename='401.26.log', format='%(asctime)s %(message)s', filemode='w')
-#script_log = logging.getLogger()
 
 ### FUNCTIONS ####
-
-
-#def add_log_entry(message):
-#   script_log.debug(message)
 
 
 # print string to stdout and log according to instructions
