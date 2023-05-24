@@ -180,7 +180,7 @@ while True:
         except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error")
 
       if op == 3:   # brute force a zip file
-        zip = input('Enter the zip archive to open (default = "test.zip")')
+        zip = input('Enter the zip archive to open (default = "test.zip"):')
         zip = "test.zip" if zip == "" else zip
         print(f"Parsing {wordlist} as the wordlist file.")
         try:
