@@ -70,7 +70,7 @@ def connect_ssh(host, username, pw, port=22):
 
     except KeyboardInterrupt:   # Ctrl+C interrupt
       print("\nStopped by user. Exiting...")
-      lumber.critical("Execution stopped by user. (Ctrl+C)")
+      print_log("Execution stopped by user. (Ctrl+C)", lumber, "critical")
       sys.exit()
 
    
@@ -83,7 +83,7 @@ try:    # grab parameters from script arguments
 except: # incorrect number of args
     print("Please provide a wordlist file as the argument to this script.\n" \
           "Exiting...")
-    lumber.error("No wordlist file provided.")
+    print_log("No wordlist file provided.", lumber, "error")
     sys.exit()
 
 
@@ -110,7 +110,7 @@ while True:
 
     if op == 0:
       print("Exiting the script...")
-      lumber.info("Script completed successfully")
+      print_log("Script completed successfully", lumber, "info")
       sys.exit()  # kill the script
     else:
       
