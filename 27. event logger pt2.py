@@ -11,9 +11,6 @@
 #   Add a log rotation feature based on size
 
 
-# NEW CODE AT A GLANCE:
-
-
 import zipfile  # for working with zip files
 
 import sys      # for args and sys.exit() to kill the script
