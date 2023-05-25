@@ -26,21 +26,27 @@ log_on = 1  # global var  to switch logging on/off
 log_status = { 0:"DISABLE", 1:"ENABLE" }  # dict to store logging states
 
 # configure log file, message format, and verbosity
+# default output goes to console (stream handler)
 logging.basicConfig(format='%(asctime)s: %(levelname)s:\t%(message)s', 
                     datefmt='%Y%m%d.%H%M%S', 
                     level=logging.DEBUG)
 
 lumber = logging.getLogger()  # log object
-roller = logging.handlers.RotatingFileHandler('401.27.log', maxBytes=1000, backupCount=3)
-lumber.addHandler(roller)
+# create a rotating file handler
+roller = logging.handlers.RotatingFileHandler('401.28.log', maxBytes=1000, backupCount=3)
+# set formatting for the file handler
+roller.setFormatter(logging.Formatter(fmt='%(asctime)s: %(levelname)s:\t%(message)s', 
+                                           datefmt='%Y%m%d.%H%M%S'))
+lumber.addHandler(roller)   # add to the logger
+
 
 ### FUNCTIONS ####
 
 
-# print string to stdout and log according to instructions
-def print_log(str, log, lvl):  # new def to allow for variable log object and log level
-    print(str)
-    getattr(log, lvl)(str)     # add log entry with the level defined by lvl
+# # print string to stdout and log according to instructions
+# def print_log(str, log, lvl):  # new def to allow for variable log object and log level
+#     print(str)
+#     getattr(log, lvl)(str)     # add log entry with the level defined by lvl
    
 
 # SSH connect to <host> on <port> using <username>:<pw>
@@ -62,7 +68,7 @@ def connect_ssh(host, username, pw, port=22):
 
     except KeyboardInterrupt:   # Ctrl+C interrupt
       print("\nStopped by user. Exiting...")
-      print_log("Execution stopped by user. (Ctrl+C)", lumber, 'critical')
+      lumber.critical("Execution stopped by user. (Ctrl+C)", lumber, 'critical')
       sys.exit()
 
    
@@ -75,7 +81,7 @@ try:    # grab parameters from script arguments
 except: # incorrect number of args
     print("Please provide a wordlist file as the argument to this script.\n" \
           "Exiting...")
-    print_log("No wordlist file provided.", lumber, "error")
+    lumber.error("No wordlist file provided.")
     sys.exit()
 
 
@@ -102,7 +108,7 @@ while True:
 
     if op == 0:
       print("Exiting the script...")
-      print_log("Script completed successfully", lumber, "info")
+      lumber.info("Script completed successfully")
       sys.exit()  # kill the script
     else:
       
@@ -137,12 +143,12 @@ while True:
                       print("^^^ END OF HASHES ^^^")
                   
                   except Exception as exc:  # it's broken
-                      print_log(f"Error retrieving password hashes. Exception: {exc}", lumber, "error")
+                      lumber.error(f"Error retrieving password hashes. Exception: {exc}")
                   
                   break   # exit the loop after finding the right password
 
                time.sleep(1)  # delay before trying the next pw
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error") 
+        except FileNotFoundError: lumber.error(f"File {wordlist} does not exist") 
            
 
       if op == 2:   # password lookup
@@ -156,8 +162,8 @@ while True:
                pw1 = pw.strip()
                i += 1
                if (test == pw1):
-                 print_log(f"MATCH FOUND!   Line {i}: {test} - {pw1}", lumber, "info")
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error")
+                 lumber.info(f"MATCH FOUND!   Line {i}: {test} - {pw1}")
+        except FileNotFoundError: lumber.error(f"File {wordlist} does not exist")
 
       if op == 3:   # brute force a zip file
         zip = input('Enter the zip archive to open (default = "test.zip"):')
@@ -173,14 +179,14 @@ while True:
                   var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
                   # if no exceptions thrown, we are good!
                   print("SUCCESS")
-                  print_log(f"Found password for {zip}:\t{pw1}", lumber, "info")
+                  lumber.info(f"Found password for {zip}:\t{pw1}")
                   break # stop iteration
               except Exception as exc:
                   # exception: first two words are "bad password"?
                   if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
                     print("fail")
                   # for any other exceptions
-                  else: print_log(f"Unknown error opening {zip}", lumber, "error")
-        except FileNotFoundError: print_log(f"File {wordlist} does not exist", lumber, "error")
+                  else: lumber.error(f"Unknown error opening {zip}")
+        except FileNotFoundError: lumber.error(f"File {wordlist} does not exist")
         
 # end of script
