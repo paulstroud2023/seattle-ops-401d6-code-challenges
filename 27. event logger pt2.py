@@ -24,8 +24,7 @@ log_on = 1  # global var  to switch logging on/off
 log_status = { 0:"DISABLE", 1:"ENABLE" }  # dict to store logging states
 
 # configure log file, message format, and verbosity
-logging.basicConfig(filename='401.26.log',
-                    format='%(asctime)s: %(levelname)s:\t%(message)s', 
+logging.basicConfig(format='%(asctime)s: %(levelname)s:\t%(message)s', 
                     datefmt='%Y%m%d.%H%M%S', 
                     level=logging.DEBUG)
 
@@ -61,7 +60,7 @@ def connect_ssh(host, username, pw, port=22):
 
     except KeyboardInterrupt:   # Ctrl+C interrupt
       print("\nStopped by user. Exiting...")
-      lumber.critical("Execution stopped by user. (Ctrl+C)")
+      print_log("Execution stopped by user. (Ctrl+C)", lumber, 'critical')
       sys.exit()
 
    
@@ -74,7 +73,7 @@ try:    # grab parameters from script arguments
 except: # incorrect number of args
     print("Please provide a wordlist file as the argument to this script.\n" \
           "Exiting...")
-    lumber.error("No wordlist file provided.")
+    print_log("No wordlist file provided.", lumber, "error")
     sys.exit()
 
 
@@ -101,7 +100,7 @@ while True:
 
     if op == 0:
       print("Exiting the script...")
-      lumber.info("Script completed successfully")
+      print_log("Script completed successfully", lumber, "info")
       sys.exit()  # kill the script
     else:
       
@@ -111,10 +110,10 @@ while True:
         while (sw != 'y' and sw != 'n'):  # grab user input
              sw = input(f"Enter y/n to {log_status[1-log_on]} logging: ")
         log_on = log_on if sw == "n" else 1-log_on   # switch log setting if 'y'
-        new_level = logging.NOTSET if log_on else logging.CRITICAL  # assign correct logging level
-        #print(new_level)
-        logging.disable(new_level)  # disable all logging at new_level and above; NOTSET enables all
-        if (sw == 'y'): print(f"Logging is now {log_status[log_on]}D")
+        if (sw == 'y'):
+          new_level = logging.NOTSET if log_on else logging.CRITICAL  # assign correct logging level
+          logging.disable(new_level)  # disable all logging at new_level and above; NOTSET enables all
+          print(f"Logging is now {log_status[log_on]}D")
         
 
 
