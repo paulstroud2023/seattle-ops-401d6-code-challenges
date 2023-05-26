@@ -26,7 +26,6 @@ log_on = 1  # global var  to switch logging on/off
 log_status = { 0:"DISABLE", 1:"ENABLE" }  # dict to store logging states
 
 # configure log file, message format, and verbosity
-# default output goes to console (stream handler)
 logging.basicConfig(format='%(asctime)s: %(levelname)s:\t%(message)s', 
                     datefmt='%Y%m%d.%H%M%S', 
                     level=logging.DEBUG)
