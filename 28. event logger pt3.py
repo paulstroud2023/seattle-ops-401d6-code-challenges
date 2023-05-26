@@ -39,6 +39,13 @@ roller.setFormatter(logging.Formatter(fmt='%(asctime)s: %(levelname)s:\t%(messag
                                            datefmt='%Y%m%d.%H%M%S'))
 lumber.addHandler(roller)   # add to the logger
 
+# stream handler to send logs to stdout
+handle_strm = logging.StreamHandler()
+handle_strm.setFormatter(logging.Formatter(fmt='%(asctime)s: %(levelname)s:\t%(message)s', 
+                                           datefmt='%Y%m%d.%H%M%S'))
+lumber.addHandler(handle_strm)   # add to the logger
+
+
 
 ### FUNCTIONS ####
 
