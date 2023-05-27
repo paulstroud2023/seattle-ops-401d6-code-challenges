@@ -15,6 +15,7 @@ import zipfile  # for working with zip files
 
 import sys      # for args and sys.exit() to kill the script
 import time     # for time.sleep() timeout
+import os       # for os.path.exists()
 
 import paramiko # for SSH connections and remote execution
 
@@ -120,26 +121,29 @@ while True:
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
       if op == 3:   # brute force a zip file
-        zip = input('Enter the zip archive to open (default = "test.zip")')
+        zip = input('Enter the zip archive to open (default = "test.zip"): ')
         zip = "test.zip" if zip == "" else zip
-        print(f"Parsing {wordlist} as the wordlist file.")
-        try:
-            file = open(wordlist, "rt")
-            for pw in file:   # iterate over each line/word in the wordlist
-              pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
-              print(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
-              try:
-                  # attempt to extract files using the pw from wordlist
-                  var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
-                  # if no exceptions thrown, we are good!
-                  print("SUCCESS")
-                  break # stop iteration
-              except Exception as exc:
-                  # exception: first two words are "bad password"?
-                  if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
-                    print("fail")
-                  # for any other exceptions
-                  else: print(f"Unknown error opening {zip}")
-        except FileNotFoundError: print(f"File {wordlist} does not exist")
+        if (os.path.exists(zip)):
+          print(f"Parsing {wordlist} as the wordlist file.")
+          try:
+              file = open(wordlist, "rt")
+              for pw in file:   # iterate over each line/word in the wordlist
+                pw1 = pw.strip()  # extract the actual password (remove leading/trailing characters)
+                print(f"   {zip}:{pw1}", " " * (15 - len(pw1)), ">   ", sep="", end="")  # pad spaces for up to 15 chars
+                try:
+                    # attempt to extract files using the pw from wordlist
+                    var = zipfile.ZipFile(zip).extractall(pwd=bytes(pw1, "UTF-8"))
+                    # if no exceptions thrown, we are good!
+                    print("SUCCESS")
+                    break # stop iteration
+                except Exception as exc:
+                    # exception: first two words are "bad password"?
+                    if (isinstance(exc.args[0], str)):
+                      if (exc.args[0].split(' ')[0:2] == [ 'Bad', 'password' ]):
+                        print("fail")
+                    # for any other exceptions
+                    else: print(f"Unknown error opening {zip}")
+          except FileNotFoundError: print(f"File {wordlist} does not exist")
+        else: print(f"{zip} does not exist. Please try again.")
         
 # end of script
