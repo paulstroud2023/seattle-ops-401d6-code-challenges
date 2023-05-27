@@ -78,6 +78,8 @@ while True:
                i += 1
                if (test == pw.strip()):
                  print(f"MATCH FOUND!   Line {i}: {test} - {pw.strip()}")
+                 break
+            else: print(f"Password {test} not found in {wordlist} :(")
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
 # end of script

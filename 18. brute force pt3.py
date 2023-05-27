@@ -115,6 +115,8 @@ while True:
                i += 1
                if (test == pw1):
                  print(f"MATCH FOUND!   Line {i}: {test} - {pw1}")
+                 break
+            else: print(f"Password {test} not found in {wordlist} :(")
         except FileNotFoundError: print(f"File {wordlist} does not exist")
 
       if op == 3:   # brute force a zip file
