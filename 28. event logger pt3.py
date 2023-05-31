@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Script: Ops 401 Class 87 script
+# Script: Ops 401 Class 28 script
 # Author: Paul Stroud
 # Date of latest revision: 05/24/23
 # Purpose: Event Logging Tool Part 3 of 3
