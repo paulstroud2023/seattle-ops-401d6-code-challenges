@@ -7,10 +7,12 @@
 # Resources used: google, stackoverflow, github demo, chatgpt
 
 # MAIN REQS:
-# Add to your malware detection script features to:
-#   Successfully connect to the VirusTotal API
-#   Automatically compare your target file’s md5 hash with the hash values of entries on VirusTotal API
-#   Print to the screen the number of positives detected and total files scanned
+# In Python create a script that executes from a Linux box to perform the following:
+#   Prompts the user to type a URL or IP address.
+#   Prompts the user to type a port number.
+#   Performs banner grabbing using netcat against the target address at the target port; prints the results to the screen then moves on to the step below.
+#   Performs banner grabbing using telnet against the target address at the target port; prints the results to the screen then moves on to the step below.
+#   Performs banner grabbing using Nmap against the target address of all well-known ports; prints the results to the screen.
 
 import platform     # to get OS name
 import os           # for os.walk() recursive directory list
@@ -21,6 +23,7 @@ import time         # for time() and sleep()
 import sys          # for sys.exit
 import requests     # to parse HTTP requests
 
+import subprocess
 import re           # for regex matching
 
 
@@ -40,9 +43,11 @@ def timeout(timer):
        wspace1 = wspace     # save value for the next loop
 
 
+
 url_regex = r'^([a-zA-Z0-9_-]+\.)+[a-zA-Z]{2,}$'
 ip_regex = r'^(\d{1,3}\.){3}\d{1,3}$'
 port_regex = r'^\d{1,5}$'
+wk_ports = (21, 22, 23, 25, 53, 67, 69, 80, 110, 123, 137, 139, 169, 443, 465, 514, 3389)   # well-known ports
 
 #### MAIN ####
 
@@ -58,6 +63,14 @@ port = sys.argv[2]
 print("port: ", port, bool(re.match(port_regex, port)))
 print("IP: ", addr, bool(re.match(ip_regex, addr)))
 print("URL: ", addr, bool(re.match(url_regex, addr)))
+
+option = ""
+
+try: 
+    test = subprocess.check_output(["telnet", addr, port], timeout=5, text=True)
+except:
+    pass
+print(test.stdout)
 
 sys.exit()     
 
