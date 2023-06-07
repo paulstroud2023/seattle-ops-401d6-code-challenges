@@ -56,31 +56,25 @@ def timeout(timer):
 
 
 def net_conn(cmd, addr, port, opt=''):
-  skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # IPv4 TCP connection
-  skt.connect((addr, int(port)))
-  print("Netcat...")
+    skt = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # IPv4 TCP connection
+    skt.connect((addr, int(port)))
 
-  #sneding the netcat command
-  opt = opt if opt == '' else opt+' '
-  cmd_str = f"{cmd} {opt}{addr} {port}"
-  input(cmd_str)
-  skt.sendall(cmd_str.encode())
-  time.sleep(.5)
-  skt.shutdown(socket.SHUT_WR)
+    opt = opt if opt == '' else opt+' '
+    cmd_str = f"{cmd} {opt}{addr} {port}"
+    print(cmd_str)
+    skt.sendall(cmd_str.encode())
+    time.sleep(.5)
+    skt.shutdown(socket.SHUT_WR)
 
-  # Repsonse placeholder
-  output = ""
+    output = ""
+    while True:
+        data = skt.recv(1024)
+        if (not data):
+          break
+        output += data.decode()
 
-  # Convert the data that we received
-  while True:
-    data = skt.recv(1024)
-    if(not data):
-      break
-    output += data.decode()
-
-  print(output)
-  #close the connection
-  skt.close()
+    print(output)
+    skt.close()
 
 
 
