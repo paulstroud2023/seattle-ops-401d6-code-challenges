@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
 
 # Author:      Abdou Rockikz
+# Description: python scanner for XSS vulnerabilities
+# Date:        06/09/2023
 # Comments by: Paul Stroud
-# Description: TODO: Add description 
-# Date:        TODO: Add date
-# Modified by: TODO: Add your name
 
-### TODO: Install requests bs4 before executing this in Python3
+### Install requests bs4 before executing this in Python3
 
 # Import libraries
-
-import requests
-from pprint import pprint
-from bs4 import BeautifulSoup as bs
-from urllib.parse import urljoin
+import requests                         # for HTTP requests
+from pprint import pprint               # pretty print for complex output
+from bs4 import BeautifulSoup as bs     # for parsing HTML
+from urllib.parse import urljoin        # for crafting URLs
 
 # Declare functions
 
@@ -24,53 +22,53 @@ def get_all_forms(url):
 
 # parses the form and returns a dictionary containing its properties
 def get_form_details(form):
-    details = {}
-    action = form.attrs.get("action").lower()
-    method = form.attrs.get("method", "get").lower()
-    inputs = []
-    for input_tag in form.find_all("input"):
-        input_type = input_tag.attrs.get("type", "text")
-        input_name = input_tag.attrs.get("name")
-        inputs.append({"type": input_type, "name": input_name})
-    details["action"] = action
+    details = {}        # initialize the dictionary
+    action = form.attrs.get("action").lower()           # get "action" attribute of the form, convert to lowercase
+    method = form.attrs.get("method", "get").lower()    # get "method" attribute of the form, convert to lowercase
+    inputs = []         # initialize the list
+    for input_tag in form.find_all("input"):                        # make a list of all inputs in the form and iterate over it
+        input_type = input_tag.attrs.get("type", "text")            # get "type" or "text" attrs of the input field
+        input_name = input_tag.attrs.get("name")                    # get the "name" attr of the input
+        inputs.append({"type": input_type, "name": input_name})     # add the type/name to the list as a dictionary element
+    # populate the dictionary
+    details["action"] = action          
     details["method"] = method
     details["inputs"] = inputs
-    return details
+    return details      # return the dictionary
 
 # submits a string to the specific form on the page
-### In your own words, describe the purpose of this function as it relates to the overall objectives of the script ###
 def submit_form(form_details, url, value):
-    target_url = urljoin(url, form_details["action"])
-    inputs = form_details["inputs"]
-    data = {}
-    for input in inputs:
-        if input["type"] == "text" or input["type"] == "search":
-            input["value"] = value
-        input_name = input.get("name")
-        input_value = input.get("value")
-        if input_name and input_value:
-            data[input_name] = input_value
+    target_url = urljoin(url, form_details["action"])   # make the target URL
+    inputs = form_details["inputs"]                     # get the list of inputs
+    data = {}                                           # initialize the data dict
+    for input in inputs:                                # iterate over the list
+        if input["type"] == "text" or input["type"] == "search":    # if the field is "text"/"search"
+            input["value"] = value                      # enter the value
+        input_name = input.get("name")                  # save the input name
+        input_value = input.get("value")                # save the input value
+        if input_name and input_value:                  # if both vars are non-zero
+            data[input_name] = input_value              # add a dict entry
 
-    if form_details["method"] == "post":
-        return requests.post(target_url, data=data)
+    if form_details["method"] == "post":                # if HTTP POST request
+        return requests.post(target_url, data=data)     # craft and return a POST request
     else:
-        return requests.get(target_url, params=data)
+        return requests.get(target_url, params=data)    # craft and return a GET request
 
 # scans a url for XSS vulnerabilities
 def scan_xss(url):
-    forms = get_all_forms(url)  # get a lit of forms on the page
+    forms = get_all_forms(url)                          # get a list of forms on the page
     print(f"[+] Detected {len(forms)} forms on {url}.")
     js_script = '<script>alert="the matrix has you</script>"' # XSS script to inject
-    is_vulnerable = False       # initialize the return var
-    for form in forms:          # iterate over the list
-        form_details = get_form_details(form)   # get the form handle
+    is_vulnerable = False                               # initialize the return var
+    for form in forms:                                  # iterate over the list
+        form_details = get_form_details(form)           # get the form handle
         content = submit_form(form_details, url, js_script).content.decode()    # try to inject the script, then save the result
-        if js_script in content:    # if it contains the injected script
-            print(f"[+] XSS Detected on {url}") # alert the user
+        if js_script in content:                        # if it contains the injected script
+            print(f"[+] XSS Detected on {url}")         # alert the user
             print(f"[*] Form details:")
-            pprint(form_details)        # pretty print info about the vulnerable form
-            is_vulnerable = True        # set the return var
-    return is_vulnerable    # return the result (T/F)
+            pprint(form_details)                        # pretty print info about the vulnerable form
+            is_vulnerable = True                        # set the return var
+    return is_vulnerable                                # return the result (T/F)
 
 # Main
 
