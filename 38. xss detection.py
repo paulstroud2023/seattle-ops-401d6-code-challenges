@@ -17,14 +17,12 @@ from urllib.parse import urljoin
 
 # Declare functions
 
-### TODO: Add function explanation here ###
-### In your own words, describe the purpose of this function as it relates to the overall objectives of the script ###
+# parses html code to extract and return all forms
 def get_all_forms(url):
-    soup = bs(requests.get(url).content, "html.parser")
-    return soup.find_all("form")
+    soup = bs(requests.get(url).content, "html.parser") # grab the html using HTTP requests lib, then parse it with bs
+    return soup.find_all("form")    # return the list of all forms
 
-### TODO: Add function explanation here ###
-### In your own words, describe the purpose of this function as it relates to the overall objectives of the script ###
+# parses the form and returns a dictionary containing its properties
 def get_form_details(form):
     details = {}
     action = form.attrs.get("action").lower()
@@ -39,7 +37,7 @@ def get_form_details(form):
     details["inputs"] = inputs
     return details
 
-### TODO: Add function explanation here ###
+# submits a string to the specific form on the page
 ### In your own words, describe the purpose of this function as it relates to the overall objectives of the script ###
 def submit_form(form_details, url, value):
     target_url = urljoin(url, form_details["action"])
@@ -58,30 +56,27 @@ def submit_form(form_details, url, value):
     else:
         return requests.get(target_url, params=data)
 
-### TODO: Add function explanation here ###
-### In your own words, describe the purpose of this function as it relates to the overall objectives of the script ###
+# scans a url for XSS vulnerabilities
 def scan_xss(url):
-    forms = get_all_forms(url)
+    forms = get_all_forms(url)  # get a lit of forms on the page
     print(f"[+] Detected {len(forms)} forms on {url}.")
-    js_script = ### TODO: Add HTTP and JS code here that will cause a XSS-vulnerable field to create an alert prompt with some text.
-    is_vulnerable = False
-    for form in forms:
-        form_details = get_form_details(form)
-        content = submit_form(form_details, url, js_script).content.decode()
-        if js_script in content:
-            print(f"[+] XSS Detected on {url}")
+    js_script = '<script>alert="the matrix has you</script>"' # XSS script to inject
+    is_vulnerable = False       # initialize the return var
+    for form in forms:          # iterate over the list
+        form_details = get_form_details(form)   # get the form handle
+        content = submit_form(form_details, url, js_script).content.decode()    # try to inject the script, then save the result
+        if js_script in content:    # if it contains the injected script
+            print(f"[+] XSS Detected on {url}") # alert the user
             print(f"[*] Form details:")
-            pprint(form_details)
-            is_vulnerable = True
-    return is_vulnerable
+            pprint(form_details)        # pretty print info about the vulnerable form
+            is_vulnerable = True        # set the return var
+    return is_vulnerable    # return the result (T/F)
 
 # Main
 
-### TODO: Add main explanation here ###
-### In your own words, describe the purpose of this main as it relates to the overall objectives of the script ###
 if __name__ == "__main__":
     url = input("Enter a URL to test for XSS:") 
-    print(scan_xss(url))
+    print(scan_xss(url))    # scan url for XSS and print the results 
 
 ### TODO: When you have finished annotating this script with your own comments, copy it to Web Security Dojo
 ### TODO: Test this script against one XSS-positive target and one XSS-negative target
