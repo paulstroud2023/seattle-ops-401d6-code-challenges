@@ -58,7 +58,7 @@ def submit_form(form_details, url, value):
 def scan_xss(url):
     forms = get_all_forms(url)                          # get a list of forms on the page
     print(f"[+] Detected {len(forms)} forms on {url}.")
-    js_script = '<script>alert="the matrix has you</script>"' # XSS script to inject
+    js_script = '<script>alert="the matrix has you"</script>' # XSS script to inject
     is_vulnerable = False                               # initialize the return var
     for form in forms:                                  # iterate over the list
         form_details = get_form_details(form)           # get the form handle
